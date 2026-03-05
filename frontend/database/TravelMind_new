@@ -1,0 +1,179 @@
+USE TravelMindDB_New;
+GO
+
+-- ── 1. CATEGORIES ──────────────────────────────────────────────────────
+CREATE TABLE Categories (
+    Id        INT IDENTITY(1,1) PRIMARY KEY,
+    NameAr    NVARCHAR(100) NOT NULL,
+    NameEn    NVARCHAR(100) NOT NULL,
+    Type      NVARCHAR(50) NOT NULL -- 'Attraction', 'Hotel', 'Restaurant'
+);
+
+-- ── 2. USERS ───────────────────────────────────────────────────────────
+CREATE TABLE Users (
+    Id                INT IDENTITY(1,1) PRIMARY KEY,
+    Name              NVARCHAR(100) NOT NULL,
+    Email             NVARCHAR(200) NOT NULL UNIQUE,
+    PasswordHash      NVARCHAR(500) NOT NULL,
+    PreferredLanguage NVARCHAR(10) DEFAULT 'en',
+    ProfileImage      NVARCHAR(500) NULL,
+    CreatedAt         DATETIME DEFAULT GETDATE()
+);
+
+-- ── 3. ATTRACTIONS ─────────────────────────────────────────────────────
+CREATE TABLE Attractions (
+    Id            INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryId    INT NOT NULL REFERENCES Categories(Id),
+    NameAr        NVARCHAR(200) NOT NULL,
+    NameEn        NVARCHAR(200) NOT NULL,
+    DescriptionAr NVARCHAR(MAX) NULL,
+    DescriptionEn NVARCHAR(MAX) NULL,
+    City          NVARCHAR(100) NOT NULL,
+    Latitude      DECIMAL(10,7) NULL,
+    Longitude     DECIMAL(10,7) NULL,
+    ImageUrl      NVARCHAR(500) NULL,
+    OpeningHours  NVARCHAR(200) NULL,
+    EntryFee      DECIMAL(10,2) DEFAULT 0,
+    Rating        DECIMAL(3,2) DEFAULT 0,
+    CreatedAt     DATETIME DEFAULT GETDATE()
+);
+
+-- ── 4. HOTELS ──────────────────────────────────────────────────────────
+CREATE TABLE Hotels (
+    Id            INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryId    INT NOT NULL REFERENCES Categories(Id),
+    NameAr        NVARCHAR(200) NOT NULL,
+    NameEn        NVARCHAR(200) NOT NULL,
+    DescriptionAr NVARCHAR(MAX) NULL,
+    DescriptionEn NVARCHAR(MAX) NULL,
+    City          NVARCHAR(100) NOT NULL,
+    Latitude      DECIMAL(10,7) NULL,
+    Longitude     DECIMAL(10,7) NULL,
+    ImageUrl      NVARCHAR(500) NULL,
+    Stars         INT DEFAULT 3,
+    PricePerNight DECIMAL(10,2) DEFAULT 0,
+    Phone         NVARCHAR(50) NULL,
+    Website       NVARCHAR(500) NULL,
+    Rating        DECIMAL(3,2) DEFAULT 0,
+    CreatedAt     DATETIME DEFAULT GETDATE()
+);
+
+-- ── 5. RESTAURANTS ─────────────────────────────────────────────────────
+CREATE TABLE Restaurants (
+    Id            INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryId    INT NOT NULL REFERENCES Categories(Id),
+    NameAr        NVARCHAR(200) NOT NULL,
+    NameEn        NVARCHAR(200) NOT NULL,
+    DescriptionAr NVARCHAR(MAX) NULL,
+    DescriptionEn NVARCHAR(MAX) NULL,
+    City          NVARCHAR(100) NOT NULL,
+    Latitude      DECIMAL(10,7) NULL,
+    Longitude     DECIMAL(10,7) NULL,
+    ImageUrl      NVARCHAR(500) NULL,
+    Cuisine       NVARCHAR(100) NULL,
+    PriceRange    NVARCHAR(20) NULL,
+    Phone         NVARCHAR(50) NULL,
+    Rating        DECIMAL(3,2) DEFAULT 0,
+    CreatedAt     DATETIME DEFAULT GETDATE()
+);
+
+-- ── 6. TRIPS ───────────────────────────────────────────────────────────
+CREATE TABLE Trips (
+    Id          INT IDENTITY(1,1) PRIMARY KEY,
+    UserId      INT NOT NULL REFERENCES Users(Id) ON DELETE CASCADE,
+    Name        NVARCHAR(200) NOT NULL,
+    Destination NVARCHAR(200) NOT NULL,
+    StartDate   DATE NULL,
+    EndDate     DATE NULL,
+    Budget      DECIMAL(10,2) DEFAULT 0,
+    Notes       NVARCHAR(MAX) NULL,
+    CreatedAt   DATETIME DEFAULT GETDATE()
+);
+
+-- ── 7. ITINERARIES ─────────────────────────────────────────────────────
+CREATE TABLE Itineraries (
+    Id           INT IDENTITY(1,1) PRIMARY KEY,
+    TripId       INT NOT NULL REFERENCES Trips(Id) ON DELETE CASCADE,
+    AttractionId INT NULL REFERENCES Attractions(Id),
+    DayNumber    INT NOT NULL,
+    VisitTime    NVARCHAR(50) NULL,
+    Notes        NVARCHAR(MAX) NULL
+);
+
+-- ── 8. EXPENSES ────────────────────────────────────────────────────────
+CREATE TABLE Expenses (
+    Id          INT IDENTITY(1,1) PRIMARY KEY,
+    UserId      INT NOT NULL REFERENCES Users(Id) ON DELETE CASCADE,
+    TripId      INT NULL REFERENCES Trips(Id),
+    Description NVARCHAR(300) NOT NULL,
+    Amount      DECIMAL(10,2) NOT NULL,
+    Category    NVARCHAR(100) NULL,
+    Date        DATE NULL,
+    CreatedAt   DATETIME DEFAULT GETDATE()
+);
+
+-- ── 9. JOURNALS ────────────────────────────────────────────────────────
+CREATE TABLE Journals (
+    Id        INT IDENTITY(1,1) PRIMARY KEY,
+    UserId    INT NOT NULL REFERENCES Users(Id) ON DELETE CASCADE,
+    TripId    INT NULL REFERENCES Trips(Id),
+    Title     NVARCHAR(300) NOT NULL,
+    Content   NVARCHAR(MAX) NOT NULL,
+    Date      DATE NULL,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+-- ── 10. REVIEWS ────────────────────────────────────────────────────────
+CREATE TABLE Reviews (
+    Id        INT IDENTITY(1,1) PRIMARY KEY,
+    UserId    INT NOT NULL REFERENCES Users(Id) ON DELETE CASCADE,
+    PlaceType NVARCHAR(50) NOT NULL, -- 'Attraction', 'Hotel', 'Restaurant'
+    PlaceId   INT NOT NULL,
+    Rating    INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
+    Comment   NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+-- ── 11. CHAT HISTORY ───────────────────────────────────────────────────
+CREATE TABLE ChatHistory (
+    Id        INT IDENTITY(1,1) PRIMARY KEY,
+    UserId    INT NOT NULL REFERENCES Users(Id) ON DELETE CASCADE,
+    Message   NVARCHAR(MAX) NOT NULL,
+    Response  NVARCHAR(MAX) NOT NULL,
+    Language  NVARCHAR(10) DEFAULT 'en',
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+GO
+
+-- ── SAMPLE DATA ────────────────────────────────────────────────────────
+
+-- Categories
+INSERT INTO Categories (NameAr, NameEn, Type) VALUES
+(N'تاريخي', 'Historical', 'Attraction'),
+(N'طبيعي', 'Nature', 'Attraction'),
+(N'ديني', 'Religious', 'Attraction'),
+(N'فاخر', 'Luxury', 'Hotel'),
+(N'اقتصادي', 'Budget', 'Hotel'),
+(N'عربي', 'Arabic Cuisine', 'Restaurant'),
+(N'دولي', 'International', 'Restaurant');
+
+-- Attractions
+INSERT INTO Attractions (CategoryId, NameAr, NameEn, DescriptionAr, DescriptionEn, City, Latitude, Longitude, EntryFee) VALUES
+(1, N'البتراء', 'Petra', N'مدينة النبطية الوردية الشهيرة', 'The famous rose-red Nabataean city', 'Petra', 30.3285, 35.4444, 50.00),
+(1, N'جرش', 'Jerash', N'أعظم مدن رومانية في العالم', 'One of the best preserved Roman cities', 'Jerash', 32.2743, 35.8914, 8.00),
+(2, N'وادي رم', 'Wadi Rum', N'وادي الرمال والصخور الرائع', 'Spectacular desert valley', 'Wadi Rum', 29.5752, 35.4199, 0.00),
+(2, N'البحر الميت', 'Dead Sea', N'أخفض نقطة على سطح الأرض', 'The lowest point on Earth', 'Dead Sea', 31.5590, 35.4732, 0.00),
+(3, N'مسجد الملك عبدالله', 'King Abdullah Mosque', N'مسجد جميل في عمان', 'Beautiful mosque in Amman', 'Amman', 31.9784, 35.9166, 0.00);
+
+-- Hotels
+INSERT INTO Hotels (CategoryId, NameAr, NameEn, DescriptionAr, DescriptionEn, City, Stars, PricePerNight) VALUES
+(4, N'فندق فور سيزونز عمان', 'Four Seasons Amman', N'فندق فاخر في قلب عمان', 'Luxury hotel in the heart of Amman', 'Amman', 5, 250.00),
+(4, N'موفنبيك البتراء', 'Mövenpick Petra', N'فندق رائع بجوار البتراء', 'Stunning hotel next to Petra', 'Petra', 5, 180.00),
+(5, N'فندق القصر عمان', 'Amman Palace Hotel', N'فندق مريح باسعار معقولة', 'Comfortable hotel at reasonable prices', 'Amman', 3, 60.00);
+
+-- Restaurants
+INSERT INTO Restaurants (CategoryId, NameAr, NameEn, DescriptionAr, DescriptionEn, City, Cuisine, PriceRange) VALUES
+(6, N'مطعم الريف', 'Al Reef Restaurant', N'أفضل المأكولات الأردنية التقليدية', 'Best traditional Jordanian food', 'Amman', 'Arabic', '$$'),
+(6, N'مطعم هاشم', 'Hashem Restaurant', N'مطعم شعبي مشهور في عمان', 'Famous popular restaurant in Amman', 'Amman', 'Arabic', '$'),
+(7, N'مطعم بيتزا هت', 'Pizza Hut Jordan', N'مطعم بيتزا دولي', 'International pizza restaurant', 'Amman', 'Italian', '$$');
+GO
