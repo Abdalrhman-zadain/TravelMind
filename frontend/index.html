@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TravelMind</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 
-<!-- ── AUTH SCREEN ── -->
+<!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">TravelMind</div>
@@ -18,16 +18,12 @@
       <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
       <button class="tab-btn" onclick="switchTab('register')">Register</button>
     </div>
-
-    <!-- Login -->
     <div id="login-form">
       <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com"/></div>
-      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="min 6 characters"/></div>
       <button class="btn btn-primary" onclick="login()">Sign In</button>
       <div class="error-msg" id="login-error"></div>
     </div>
-
-    <!-- Register -->
     <div id="register-form" style="display:none">
       <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Jane Doe"/></div>
       <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@email.com"/></div>
@@ -38,10 +34,8 @@
   </div>
 </div>
 
-<!-- ── MAIN APP ── -->
+<!-- MAIN APP -->
 <div id="app">
-
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">Travel<span>Mind</span></div>
     <nav class="nav-section">
@@ -57,130 +51,17 @@
       <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
     </div>
   </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-
-    <!-- Dashboard -->
-    <div class="page active" id="page-dashboard">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Welcome back 👋</div>
-          <div class="page-subtitle">Here's your travel overview</div>
-        </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card" data-icon="✈️"><div class="stat-value" id="stat-trips">0</div><div class="stat-label">Total Trips</div></div>
-        <div class="stat-card" data-icon="💰"><div class="stat-value" id="stat-expenses">$0</div><div class="stat-label">Total Spent</div></div>
-        <div class="stat-card" data-icon="📔"><div class="stat-value" id="stat-journals">0</div><div class="stat-label">Journal Entries</div></div>
-        <div class="stat-card" data-icon="🌍"><div class="stat-value" id="stat-countries">0</div><div class="stat-label">Destinations</div></div>
-      </div>
-      <div class="page-header" style="margin-bottom:16px">
-        <div class="page-title" style="font-size:1.2rem">Recent Trips</div>
-      </div>
-      <div class="cards-grid" id="dashboard-trips"></div>
-    </div>
-
-    <!-- Trips -->
-    <div class="page" id="page-trips">
-      <div class="page-header">
-        <div>
-          <div class="page-title">My Trips</div>
-          <div class="page-subtitle">Plan, track, and relive your adventures</div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openTripModal()">+ New Trip</button>
-      </div>
-      <div class="cards-grid" id="trips-grid"></div>
-    </div>
-
-    <!-- Expenses -->
-    <div class="page" id="page-expenses">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Expenses</div>
-          <div class="page-subtitle">Track your travel spending</div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ Add Expense</button>
-      </div>
-      <div class="expense-list" id="expense-list"></div>
-    </div>
-
-    <!-- Journal -->
-    <div class="page" id="page-journal">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Travel Journal</div>
-          <div class="page-subtitle">Capture your memories</div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openJournalModal()">+ New Entry</button>
-      </div>
-      <div class="journal-list" id="journal-list"></div>
-    </div>
-
-  </main>
+  <main class="main-content" id="main-content"></main>
 </div>
 
-<!-- ── MODALS ── -->
-
-<!-- Trip Modal -->
-<div class="modal-overlay" id="trip-modal">
-  <div class="modal">
-    <div class="modal-title" id="trip-modal-title">New Trip</div>
-    <div class="form-group"><label>Trip Name</label><input type="text" id="trip-name" placeholder="Summer in Italy"/></div>
-    <div class="form-group"><label>Destination</label><input type="text" id="trip-dest" placeholder="Rome, Italy"/></div>
-    <div class="form-group"><label>Start Date</label><input type="date" id="trip-start"/></div>
-    <div class="form-group"><label>End Date</label><input type="date" id="trip-end"/></div>
-    <div class="form-group"><label>Notes</label><textarea id="trip-notes" placeholder="Itinerary, things to do..."></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('trip-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveTrip()">Save Trip</button>
-    </div>
-  </div>
-</div>
-
-<!-- Expense Modal -->
-<div class="modal-overlay" id="expense-modal">
-  <div class="modal">
-    <div class="modal-title">Add Expense</div>
-    <div class="form-group"><label>Description</label><input type="text" id="exp-desc" placeholder="Flight ticket"/></div>
-    <div class="form-group"><label>Amount (USD)</label><input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01"/></div>
-    <div class="form-group"><label>Category</label>
-      <select id="exp-cat">
-        <option value="Transport">🚗 Transport</option>
-        <option value="Accommodation">🏨 Accommodation</option>
-        <option value="Food">🍽️ Food & Drink</option>
-        <option value="Activities">🎭 Activities</option>
-        <option value="Shopping">🛍️ Shopping</option>
-        <option value="Other">📦 Other</option>
-      </select>
-    </div>
-    <div class="form-group"><label>Trip</label><select id="exp-trip"></select></div>
-    <div class="form-group"><label>Date</label><input type="date" id="exp-date"/></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('expense-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveExpense()">Add Expense</button>
-    </div>
-  </div>
-</div>
-
-<!-- Journal Modal -->
-<div class="modal-overlay" id="journal-modal">
-  <div class="modal">
-    <div class="modal-title">New Journal Entry</div>
-    <div class="form-group"><label>Title</label><input type="text" id="jour-title" placeholder="A beautiful day in Paris..."/></div>
-    <div class="form-group"><label>Date</label><input type="date" id="jour-date"/></div>
-    <div class="form-group"><label>Trip</label><select id="jour-trip"></select></div>
-    <div class="form-group"><label>Your Story</label><textarea id="jour-body" placeholder="Write about your day..." style="min-height:140px"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('journal-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveJournal()">Save Entry</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
+<div id="modals-container"></div>
 <div class="toast" id="toast"></div>
 
-<script src="app.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/trips.js"></script>
+<script src="js/expenses.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
