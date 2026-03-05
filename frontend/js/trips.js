@@ -1,19 +1,6 @@
-// ── TRIPS MODULE ─────────────────────────────────────────────────────────
-// Handles all trip CRUD operations
+// trips.js — handles all trip CRUD operations
 
 let editingTripId = null;
-
-// async function loadTrips() {
-//   try {
-//     const trips = await api('GET', '/trips');
-//     const grid = document.getElementById('trips-grid');
-//     grid.innerHTML = trips.length
-//       ? trips.map(function(t) { return tripCardHTML(t); }).join('')
-//       : emptyState('🗺️', 'No trips yet. Click "+ New Trip" to start!');
-//   } catch (e) {
-//     showToast('Failed to load trips.', 'error');
-//   }
-// }
 
 async function loadTrips() {
   try {
@@ -39,7 +26,7 @@ function tripCardHTML(t) {
   const cls = status[0];
   const label = status[1];
   const s = t.startDate ? new Date(t.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-  const e = t.endDate   ? new Date(t.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+  const e = t.endDate ? new Date(t.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
   return '<div class="trip-card">' +
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
     '<div class="trip-card-title">' + t.name + '</div>' +
@@ -56,38 +43,11 @@ function openTripModal(id) {
   id = id || null;
   editingTripId = id;
 
-  // Inject modal HTML
-  const existing = document.getElementById('trip-modal');
-  if (!existing) {
-    const div = document.createElement('div');
-    div.innerHTML = tripModalHTML();
-    document.body.appendChild(div.firstChild);
-  }
-
-  document.getElementById('trip-modal-title').textContent = id ? 'Edit Trip' : 'New Trip';
-
-  if (id) {
-    api('GET', '/trips/' + id).then(function(trip) {
-      document.getElementById('trip-name').value = trip.name;
-      document.getElementById('trip-dest').value = trip.destination;
-      document.getElementById('trip-start').value = trip.startDate ? trip.startDate.split('T')[0] : '';
-      document.getElementById('trip-end').value = trip.endDate ? trip.endDate.split('T')[0] : '';
-      document.getElementById('trip-notes').value = trip.notes || '';
-    });
-  } else {
-    document.getElementById('trip-name').value = '';
-    document.getElementById('trip-dest').value = '';
-    document.getElementById('trip-start').value = '';
-    document.getElementById('trip-end').value = '';
-    document.getElementById('trip-notes').value = '';
-  }
-  openModal('trip-modal');
-}
-
-function tripModalHTML() {
-  return '<div class="modal-overlay" id="trip-modal" onclick="if(event.target===this)closeModal(\'trip-modal\')">' +
+  // ✅ Inject modal into modals-container
+  document.getElementById('modals-container').innerHTML =
+    '<div class="modal-overlay open" id="trip-modal" onclick="if(event.target===this)closeModal(\'trip-modal\')">' +
     '<div class="modal">' +
-    '<div class="modal-title" id="trip-modal-title">New Trip</div>' +
+    '<div class="modal-title" id="trip-modal-title">' + (id ? 'Edit Trip' : 'New Trip') + '</div>' +
     '<div class="form-group"><label>Trip Name</label><input type="text" id="trip-name" placeholder="Summer in Italy"/></div>' +
     '<div class="form-group"><label>Destination</label><input type="text" id="trip-dest" placeholder="Rome, Italy"/></div>' +
     '<div class="form-group"><label>Start Date</label><input type="date" id="trip-start"/></div>' +
@@ -95,7 +55,19 @@ function tripModalHTML() {
     '<div class="form-group"><label>Notes</label><textarea id="trip-notes" placeholder="Itinerary, things to do..."></textarea></div>' +
     '<div class="modal-actions">' +
     '<button class="btn btn-secondary" onclick="closeModal(\'trip-modal\')">Cancel</button>' +
-    '<button class="btn btn-primary" onclick="saveTrip()">Save Trip</button></div></div></div>';
+    '<button class="btn btn-primary" onclick="saveTrip()">Save Trip</button>' +
+    '</div></div></div>';
+
+  // ✅ Fill form if editing
+  if (id) {
+    api('GET', '/trips/' + id).then(function (trip) {
+      document.getElementById('trip-name').value = trip.name;
+      document.getElementById('trip-dest').value = trip.destination;
+      document.getElementById('trip-start').value = trip.startDate ? trip.startDate.split('T')[0] : '';
+      document.getElementById('trip-end').value = trip.endDate ? trip.endDate.split('T')[0] : '';
+      document.getElementById('trip-notes').value = trip.notes || '';
+    });
+  }
 }
 
 async function saveTrip() {
@@ -116,8 +88,7 @@ async function saveTrip() {
       showToast('Trip created! 🌍', 'success');
     }
     closeModal('trip-modal');
-    loadTrips();
-    loadDashboard();
+    showPage('trips');
   } catch (e) { showToast(e.message, 'error'); }
 }
 
@@ -126,7 +97,6 @@ async function deleteTrip(id) {
   try {
     await api('DELETE', '/trips/' + id);
     showToast('Trip deleted.', 'success');
-    loadTrips();
-    loadDashboard();
+    showPage('trips');
   } catch (e) { showToast(e.message, 'error'); }
 }
